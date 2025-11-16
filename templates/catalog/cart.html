@@ -3,13 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <title>Carrito — Tienda Minimal</title>
-    <link rel="stylesheet" href="/static/css/style.css" />
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   </head>
   <body>
     <header class="site-header">
       <div class="inner">
         <a class="brand" href="/">
-          <img src="/static/img/logo.svg" alt="Tienda Minimal" class="logo" />
+          <img src="{% static 'img/logo.svg' %}" alt="Tienda Minimal" class="logo" />
           <span class="brand-name">Tienda Minimal</span>
         </a>
       </div>
