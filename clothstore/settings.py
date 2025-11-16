@@ -4,9 +4,10 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'replace-me-for-production'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'replace-me-for-production')
 
-DEBUG = True
+# Read DEBUG from environment so production can set it to False
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
@@ -18,6 +19,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -50,6 +52,12 @@ DATABASES = {
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Where `collectstatic` will gather static files for production (e.g. Render)
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Use Whitenoise compressed manifest storage in production for efficient static serving
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Use signed-cookie session backend to avoid requiring the database table
 # during local development. For production, prefer the database-backed session
