@@ -3,14 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <title>Tienda Minimal - Probador</title>
-    <link rel="stylesheet" href="/static/css/style.css" />
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   </head>
   <body>
     <header class="site-header">
       <div class="inner">
         <a class="brand" href="/">
           <!-- inline SVG logo -->
-          <img src="/static/img/logo.svg" alt="Tienda Minimal" class="logo" />
+          <img src="{% static 'img/logo.svg' %}" alt="Tienda Minimal" class="logo" />
           <span class="brand-name">Tienda Minimal</span>
         </a>
         <div style="margin-left:auto">
