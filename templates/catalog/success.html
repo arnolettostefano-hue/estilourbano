@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Compra exitosa — Tienda Minimal</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="inner">
+        <a class="brand" href="/">
+          <img src="/static/img/logo.svg" alt="Tienda Minimal" class="logo" />
+          <span class="brand-name">Tienda Minimal</span>
+        </a>
+      </div>
+    </header>
+
+    <main class="container">
+      <h1>¡Compra realizada con éxito!</h1>
+      {% if order %}
+        <p>Orden: <strong>{{ order.id }}</strong></p>
+        <p>Artículos: {{ order.total_items }}</p>
+        <ul>
+          {% for it in order.items %}
+            <li>{{ it.name }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No se encontró información de la orden.</p>
+      {% endif %}
+
+      <p><a href="/">Volver al catálogo</a></p>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Tienda Minimal - Probador</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="inner">
+        <a class="brand" href="/">
+          <!-- inline SVG logo -->
+          <img src="/static/img/logo.svg" alt="Tienda Minimal" class="logo" />
+          <span class="brand-name">Tienda Minimal</span>
+        </a>
+        <div style="margin-left:auto">
+          <a class="brand" href="/cart/">Carrito ({{ cart_count|default:0 }})</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero container">
+        <div class="hero-left">
+          <h1>Probador Virtual</h1>
+          <p class="lead">Introduce tu altura, peso y sexo para ver prendas recomendadas en el catálogo.</p>
+
+          <form action="/" method="get" class="form" id="fitting-form">
+            <label>Altura (cm)
+              <input type="number" name="height" min="100" max="220" value="{{ selected_height|default_if_none:'' }}" required />
+            </label>
+
+            <label>Peso (kg)
+              <input type="number" name="weight" min="30" max="200" step="0.1" value="{{ selected_weight|default_if_none:'' }}" required />
+            </label>
+
+            <div class="filter-group sex-row">
+              <h4 style="margin:8px 0 6px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">Sexo</h4>
+              <div class="sex-options">
+                <label class="filter-label-inline"><input type="radio" name="sex" value="hombre" {% if selected_sex == 'hombre' %}checked{% endif %}> Hombre</label>
+                <label class="filter-label-inline"><input type="radio" name="sex" value="mujer" {% if selected_sex == 'mujer' %}checked{% endif %}> Mujer</label>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="submit">Aplicar</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="catalog" class="catalog-section">
+        <div class="container-flex">
+          <!-- Filter Menu -->
+          <aside class="filters">
+            <h3>Filtros</h3>
+            
+            <div class="filter-group">
+              <h4 style="margin:0 0 8px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">Género</h4>
+              <label class="filter-label">
+                <input type="radio" name="gender" value="todos" class="gender-filter" checked />
+                <span>Todos</span>
+              </label>
+              {% for g in genders %}
+              <label class="filter-label">
+                <input type="radio" name="gender" value="{{ g }}" class="gender-filter" />
+                <span>{{ g|title }}</span>
+              </label>
+              {% endfor %}
+            </div>
+
+            <div class="filter-group">
+              <h4 style="margin:0 0 8px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">Talles</h4>
+              <label class="filter-label">
+                <input type="radio" name="size" value="todos" class="size-filter" checked />
+                <span>Todos</span>
+              </label>
+              {% for sz in sizes %}
+              <label class="filter-label">
+                <input type="radio" name="size" value="{{ sz }}" class="size-filter" />
+                <span>{{ sz }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </aside>
+
+          <!-- Catalog Grid -->
+          <div class="catalog">
+            <h2>Catálogo</h2>
+            <p class="muted">Explora nuestra colección de ropa.</p>
+
+            <div class="grid" id="product-grid">
+              {% for it in display_items %}
+              <article class="card reveal" data-gender="{{ it.gender }}" data-sizes="{{ it.sizes|join:',' }}">
+                <div class="card-image">
+                  <img src="{{ it.image }}" alt="{{ it.name }}" />
+                </div>
+                <div class="card-body">
+                  <h3>{{ it.name }}</h3>
+                  <div class="category">{{ it.category }}</div>
+                  <div class="sizes">Talle: {{ it.sizes|join:", " }}</div>
+
+                  <form method="post" action="/cart/add/" class="add-cart-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" value="{{ it.id }}" />
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                    <button type="submit" class="btn-add">Agregar al carrito</button>
+                  </form>
+                </div>
+              </article>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">© Tienda Minimal — Diseño minimalista</div>
+    </footer>
+
+    <script>
+      // small reveal-on-scroll using IntersectionObserver
+      document.addEventListener('DOMContentLoaded', function(){
+        const observer = new IntersectionObserver((entries)=>{
+          entries.forEach(e=>{
+            if(e.isIntersecting){
+              e.target.classList.add('visible');
+              observer.unobserve(e.target);
+            }
+          })
+        }, {threshold: 0.12});
+
+        document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+        // Previous client-side filters are kept for when the user hasn't used the fitting form.
+        const genderFilters = document.querySelectorAll('.gender-filter');
+        const sizeFilters = document.querySelectorAll('.size-filter');
+        const cards = document.querySelectorAll('#product-grid .card');
+
+        function applyClientFilters() {
+          const selectedGender = Array.from(genderFilters).find(f => f.checked).value;
+          const selectedSize = Array.from(sizeFilters).find(f => f.checked).value;
+
+          cards.forEach(card => {
+            const cardGender = card.dataset.gender;
+            const cardSizes = card.dataset.sizes.split(',');
+
+            let showCard = true;
+
+            // Check gender filter
+            if (selectedGender !== 'todos' && cardGender !== selectedGender) {
+              showCard = false;
+            }
+
+            // Check size filter
+            if (selectedSize !== 'todos' && !cardSizes.includes(selectedSize)) {
+              showCard = false;
+            }
+
+            card.style.display = showCard ? '' : 'none';
+          });
+        }
+
+        genderFilters.forEach(f => f.addEventListener('change', applyClientFilters));
+        sizeFilters.forEach(f => f.addEventListener('change', applyClientFilters));
+      });
+    </script>
+  </body>
+</html>

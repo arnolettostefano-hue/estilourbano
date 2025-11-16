@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Resultados — Sugerencias</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Sugerencias</h1>
+
+      <section class="summary">
+        <p><strong>Altura:</strong> {{ height }} cm</p>
+        <p><strong>Peso:</strong> {{ weight }} kg</p>
+        <p><strong>Talle estimado:</strong> {{ estimated_size }}</p>
+      </section>
+
+      <section class="results">
+        {% if suggested %}
+          {% with top=suggested.0 %}
+            <div class="items">
+              <div class="item">
+                <div class="meta">
+                  <strong>{{ top.item.name }}</strong>
+                  <div class="category">{{ top.item.category }}</div>
+                </div>
+                <div class="sizes">Talles: {{ top.item.sizes|join:", " }}</div>
+              </div>
+            </div>
+          {% endwith %}
+        {% else %}
+          <p>No se encontraron sugerencias. Intenta con otro peso o altura.</p>
+        {% endif %}
+      </section>
+
+      <a href="/">Volver</a>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Carrito — Tienda Minimal</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="inner">
+        <a class="brand" href="/">
+          <img src="/static/img/logo.svg" alt="Tienda Minimal" class="logo" />
+          <span class="brand-name">Tienda Minimal</span>
+        </a>
+      </div>
+    </header>
+
+    <main class="container">
+      <h1>Tu carrito</h1>
+      {% if items %}
+        <ul class="cart-list">
+          {% for it in items %}
+            <li class="cart-item">
+              <img src="{{ it.image }}" alt="{{ it.name }}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin-right:12px" />
+              <div class="cart-meta">
+                <strong>{{ it.name }}</strong>
+                <div class="muted">Talle: {{ it.sizes|join:", " }} • {{ it.category }}</div>
+              </div>
+              <form method="post" action="/cart/remove/" style="margin-left:auto">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{ it.id }}" />
+                <input type="hidden" name="next" value="/cart/" />
+                <button type="submit" class="btn-small">Quitar</button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+
+        <form method="post" action="/cart/remove/">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="/cart/" />
+          <button type="submit">Vaciar carrito</button>
+        </form>
+        <form method="post" action="/cart/checkout/" style="margin-top:12px">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="/cart/success/" />
+          <button type="submit" class="btn-add">Comprar y pagar</button>
+        </form>
+      {% else %}
+        <p>No hay artículos en tu carrito.</p>
+      {% endif %}
+      <p><a href="/">Volver al catálogo</a></p>
+    </main>
+  </body>
+</html>
